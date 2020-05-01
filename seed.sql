@@ -1,14 +1,11 @@
-DROP DATABASE IF EXISTS hotRestaurantDB;
-CREATE DATABASE hotRestaurantDB;
+DROP DATABASE IF EXISTS employeeTracker_db;
+CREATE DATABASE employeeTracker_db;
 
-USE hotRestaurantDB;
+USE employeeTracker_db;
 
 CREATE TABLE department(
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(45) NOT NULL,
-    email VARCHAR(45) NOT NULL,
-    phoneNumber VARCHAR(45) NOT NULL,
-    seated BOOLEAN NOT NULL, 
+    name VARCHAR(30) NOT NULL,
     PRIMARY KEY (id)
 );
 
