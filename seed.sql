@@ -25,3 +25,7 @@ CREATE TABLE employee(
     manager_ID INT, 
     PRIMARY KEY (id)
 );
+
+
+INSERT INTO employee (first_name, last_name)
+VALUES ("John", "Doe"), ("Jane", "Doe"), ("Juan", "Doe"), ("Michael", "Scott");
