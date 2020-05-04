@@ -152,7 +152,7 @@ function addRole() {
   inquirer.prompt([{
     type: "input",
     name: "title",
-    message: "What Role would you like to create?"
+    message: "What role title would you like to create?"
   },
   {
     type: "number",
@@ -172,6 +172,39 @@ function addRole() {
         title: createPrompt.title,
         salary: createPrompt.salary,
         department_ID: createPrompt.depart_id,
+      },
+      function (errOne, resOne) {
+        if (errOne) throw errOne;
+        start();
+      }
+    );
+  });
+};
+
+function addEmployee() {
+  inquirer.prompt([{
+    type: "input",
+    name: "first_name",
+    message: "What is the First Name of the Employee?"
+  },
+  {
+    type: "input",
+    name: "last_name",
+    message: "What is the Last Name of the Employee?"
+  },
+  {
+    type: "number",
+    name: "role_id",
+    message: "What role ID is this employee assigned to?"
+  }
+
+  ]).then(createPrompt => {
+    connection.query(
+      "INSERT INTO employee SET ?;",
+      {
+        first_name: createPrompt.first_name,
+        last_name: createPrompt.last_name,
+        role_ID: createPrompt.role_id,
       },
       function (errOne, resOne) {
         if (errOne) throw errOne;
