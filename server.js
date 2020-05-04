@@ -108,20 +108,57 @@ function viewOptions() {
 };
 
 function updateRoles() {
-  inquirer
-    .prompt(
-      {
-        name: "updateRole",
-        type: "list",
-        message: "Please select from the following:",
-        choices: ["View Departments", "View Roles", "View Employees", "Go Back"]
-      })
-    .then(function (answer) {
-      if (answer.updateRole === "View Departments") {
-        viewDepartment();
-      }
-    })
-};
+  connection.query("SELECT first_name, last_name, role_ID FROM employee;", function (errOne, resOne) {
+    if (errOne) throw errOne;
+    inquirer.prompt([{
+          name: "updateRole",
+          type: "list",
+          message: "Please select an employee to update their title.",
+          choices: resOne.map(employee => {
+            return {
+              name: employee.first_name + " " + employee.last_name + " - " + employee.role_ID,
+              value: employee.id
+            }
+          })
+        },
+        {
+          type: "input",
+          name: "newID",
+          message: "What would you like to change it to?"
+        },
+        {
+          type: "number",
+          name: "price",
+          message: "What price should it have?"
+        },
+        {
+          type: "input",
+          name: "quantity",
+          message: "How much should be in stock?"
+        }]).then(updatePrompt => {
+          connection.query(
+            "UPDATE products SET ? WHERE ?",
+            [
+              {
+                price: updatePrompt.price,
+                quantity: updatePrompt.quantity,
+                flavor: updatePrompt.flavor
+              },
+              {
+                id: updatePrompt.id
+              }
+            ],
+            function (errTwo, resTwo) {
+              if (errTwo) throw errTwo;
+              iceCreamManager();
+            }
+          );
+        });
+
+  });
+
+}
+
 
 
 // ************* ADD OPTION FUNCTIONS *****************
