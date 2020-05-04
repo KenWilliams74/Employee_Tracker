@@ -13,49 +13,137 @@ var connection = mysql.createConnection({
   database: "employeeTracker_db"
 });
 
-connection.connect(function (err) {
-  if (err) throw err;
-  display(function(){
-    start();
+function beginning() {
+  connection.connect(function (err) {
+    if (err) throw err;
+    display(function () {
+      start();
+    })
   })
-});
+};
+
+beginning();
 
 
-
-function display(cb){
-  connection.query("SELECT * FROM employee;", function (err, res) {
+function display(cb) {
+  connection.query("SELECT first_name, last_name, title, salary, department_name FROM employee LEFT JOIN role ON employee.role_ID = role.id LEFT JOIN department ON role.department_ID = department.id;", function (err, res) {
     if (err) throw err;
     console.table(res);
     cb();
   });
 };
+
 function start() {
   inquirer
     .prompt({
       name: "employeeSelect",
       type: "list",
       message: "Would you like to do?",
-      choices: ["Add department, role, employee", "View departments, roles, employees", "Update employee roles"]
+      choices: ["Add department, role, employee", "View departments, roles, employees", "Update employee roles", "View Main Table"]
     })
     .then(function (answer) {
-      if (answer.employeeSelect === "Add department") {
+      if (answer.employeeSelect === "Add department, role, employee") {
+        addOptions();
+      } else if (answer.employeeSelect === "View departments, roles, employees") {
+        viewOptions();
+      } else if (answer.employeeSelect === "Update employee roles") {
+        updateRoles();
+      } else connection.query("SELECT first_name, last_name, title, salary, department_name FROM employee LEFT JOIN role ON employee.role_ID = role.id LEFT JOIN department ON role.department_ID = department.id;", function (err, res) {
+        if (err) throw err;
+        console.table(res)
+        start();
+      });
+    })
+};
+
+// *********** FIRST THREE SELECTION FUNCTIONS ****************//
+
+function addOptions() {
+  inquirer
+    .prompt(
+      {
+        name: "addOption",
+        type: "list",
+        message: "Please select from the following:",
+        choices: ["Add Department", "Add Role", "Add Employee", "Go Back"]
+      })
+    .then(function (answer) {
+      if (answer.addOption === "Add Department") {
         addDepartment();
+      } else if (answer.addOption === "Add Role") {
+        addRole();
+      } else if (answer.addOption === "Add Employee") {
+        addEmployee();
+      } else start();
+    })
+};
+
+function viewOptions() {
+  inquirer
+    .prompt(
+      {
+        name: "viewOption",
+        type: "list",
+        message: "Please select from the following:",
+        choices: ["View Departments", "View Roles", "View Employees", "Go Back"]
+      })
+    .then(function (answer) {
+      if (answer.viewOption === "View Departments") {
+        connection.query("SELECT * FROM department;", function (err, res) {
+          console.table(res);
+          start();
+        });
+      } else if (answer.viewOption === "View Roles") {
+        connection.query("SELECT * FROM role;", function (err, res) {
+          console.table(res);
+          start();
+        });
+      } else if (answer.viewOption === "View Employees") {
+        connection.query("SELECT * FROM employee;", function (err, res) {
+          console.table(res);
+          start();
+        });
+      } else start();
+    })
+};
+
+function updateRoles() {
+  inquirer
+    .prompt(
+      {
+        name: "updateRole",
+        type: "list",
+        message: "Please select from the following:",
+        choices: ["View Departments", "View Roles", "View Employees", "Go Back"]
+      })
+    .then(function (answer) {
+      if (answer.updateRole === "View Departments") {
+        viewDepartment();
       }
     })
 };
 
+
+// ************* ADD OPTION FUNCTIONS *****************
+
+
+
 function addDepartment() {
-  inquirer
-    .prompt([
+  inquirer.prompt([{
+    type: "input",
+    name: "department",
+    message: "What Department would you like to create?"
+  }
+  ]).then(createPrompt => {
+    connection.query(
+      "INSERT INTO department SET ?;",
       {
-        name: "employeeAdd",
-        type: "input",
-        message: "Add an Employee"
+        department_name: createPrompt.department,
       },
-      {
-        name: "employeeDelete",
-        type: "input",
-        message: "Delete an Employee"
-      }])
+      function (errOne, resOne) {
+        if (errOne) throw errOne;
+        start();
+      }
+    );
+  });
 };
-     
