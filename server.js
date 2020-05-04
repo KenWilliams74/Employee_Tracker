@@ -8,7 +8,7 @@ var connection = mysql.createConnection({
   port: 3306,
 
   user: "root",
-
+// *********** ENTER PASSWORD ****************
   password: "",
   database: "employeeTracker_db"
 });
@@ -108,52 +108,49 @@ function viewOptions() {
 };
 
 function updateRoles() {
-  connection.query("SELECT first_name, last_name, role_ID FROM employee;", function (errOne, resOne) {
+  connection.query("SELECT first_name, last_name, title, role_ID, role.id, employee.id FROM role LEFT JOIN employee ON employee.role_ID = role.id;", function (errOne, resOne) {
     if (errOne) throw errOne;
     inquirer.prompt([{
-          name: "updateRole",
-          type: "list",
-          message: "Please select an employee to update their title.",
-          choices: resOne.map(employee => {
-            return {
-              name: employee.first_name + " " + employee.last_name + " - " + employee.role_ID,
-              value: employee.id
-            }
-          })
-        },
-        {
-          type: "input",
-          name: "newID",
-          message: "What would you like to change it to?"
-        },
-        {
-          type: "number",
-          name: "price",
-          message: "What price should it have?"
-        },
-        {
-          type: "input",
-          name: "quantity",
-          message: "How much should be in stock?"
-        }]).then(updatePrompt => {
-          connection.query(
-            "UPDATE products SET ? WHERE ?",
-            [
-              {
-                price: updatePrompt.price,
-                quantity: updatePrompt.quantity,
-                flavor: updatePrompt.flavor
-              },
-              {
-                id: updatePrompt.id
-              }
-            ],
-            function (errTwo, resTwo) {
-              if (errTwo) throw errTwo;
-              iceCreamManager();
-            }
-          );
-        });
+      name: "updateRole",
+      type: "list",
+      message: "Please select an employee to update their title.",
+      choices: resOne.map(employee => {
+        console.log(employee);
+        return {
+          name: employee.first_name + " " + employee.last_name + " - " + employee.title,
+          value: employee.id
+        }
+      })
+    },
+    {
+      type: "list",
+      name: "id",
+      message: "What would you like to change the role of the employee to?",
+      choices: resOne.map(role => {
+        console.log(role.title);
+        return {
+          name: role.title,
+          value: role.id
+        }
+      })
+    }]).then(updatePrompt => {
+      console.log(updatePrompt);
+      connection.query(
+        "UPDATE employee SET ? WHERE ?",
+        [
+          {
+            role_ID: updatePrompt.updateRole,
+          },
+          {
+            id: updatePrompt.id
+          },
+        ],
+        function (errTwo, resTwo) {
+          if (errTwo) throw errTwo;
+          start();
+        }
+      );
+    });
 
   });
 
