@@ -9,7 +9,7 @@ var connection = mysql.createConnection({
 
   user: "root",
 
-  password: "qwert12",
+  password: "",
   database: "employeeTracker_db"
 });
 
@@ -139,6 +139,39 @@ function addDepartment() {
       "INSERT INTO department SET ?;",
       {
         department_name: createPrompt.department,
+      },
+      function (errOne, resOne) {
+        if (errOne) throw errOne;
+        start();
+      }
+    );
+  });
+};
+
+function addRole() {
+  inquirer.prompt([{
+    type: "input",
+    name: "title",
+    message: "What Role would you like to create?"
+  },
+  {
+    type: "number",
+    name: "salary",
+    message: "What salary should it have?"
+  },
+  {
+    type: "number",
+    name: "depart_id",
+    message: "What department ID is this assigned to?"
+  }
+
+  ]).then(createPrompt => {
+    connection.query(
+      "INSERT INTO role SET ?;",
+      {
+        title: createPrompt.title,
+        salary: createPrompt.salary,
+        department_ID: createPrompt.depart_id,
       },
       function (errOne, resOne) {
         if (errOne) throw errOne;
